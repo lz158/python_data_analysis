@@ -1,0 +1,5452 @@
+```python
+##第七章：数据清洗与预处理 Data Cleaning and Preparation 
+```
+
+
+```python
+import numpy as np
+import pandas as pd
+PREVIOUS_MAX_ROWS =pd.options.display.max_rows
+pd.options.display.max_rows=20
+np.random.seed(12345)
+import matplotlib.pyplot as plt
+plt.rc('figure',figsize=(10,6))
+np.set_printoptions(precision=4,suppress=True)
+```
+
+
+```python
+#7.1 处理缺失值 Handling Missing Data
+#NaN:Not a Number
+#NA:Not available
+#None
+```
+
+
+```python
+string_data=pd.Series(['aardvark','artichoke',np.nan,'avocado'])
+string_data
+```
+
+
+
+
+    0     aardvark
+    1    artichoke
+    2          NaN
+    3      avocado
+    dtype: object
+
+
+
+
+```python
+string_data.isnull()
+```
+
+
+
+
+    0    False
+    1    False
+    2     True
+    3    False
+    dtype: bool
+
+
+
+
+```python
+string_data[0]=None
+string_data
+```
+
+
+
+
+    0         None
+    1    artichoke
+    2          NaN
+    3      avocado
+    dtype: object
+
+
+
+
+```python
+string_data.isnull()
+```
+
+
+
+
+    0     True
+    1    False
+    2     True
+    3    False
+    dtype: bool
+
+
+
+
+```python
+#7.1.1 过滤缺失值
+from numpy import nan as NA
+data=pd.Series([1,NA,3.5,NA,7])
+data
+```
+
+
+
+
+    0    1.0
+    1    NaN
+    2    3.5
+    3    NaN
+    4    7.0
+    dtype: float64
+
+
+
+
+```python
+data.dropna()
+```
+
+
+
+
+    0    1.0
+    2    3.5
+    4    7.0
+    dtype: float64
+
+
+
+
+```python
+#等价于下面这个
+data[data.notnull()]
+```
+
+
+
+
+    0    1.0
+    2    3.5
+    4    7.0
+    dtype: float64
+
+
+
+
+```python
+#DataFrame对象
+data=pd.DataFrame([[1.,6.5,3.],[1.,NA,NA],
+                  [NA,NA,NA],[NA,6.5,3.]])
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#data.dropna()删除包含缺失值的行或列
+cleaned=data.dropna()
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+cleaned
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#how='all',表示删除全部为缺失值的行
+data.dropna(how='all')
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#如果想删除全为缺失值的列
+data[4]=NA
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>4</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>6.5</td>
+      <td>3.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN</td>
+      <td>6.5</td>
+      <td>3.0</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#传入参数axis=1
+data.dropna(axis=1,how='all')
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN</td>
+      <td>6.5</td>
+      <td>3.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#如果想删除包含两个缺失值以上的行
+df=pd.DataFrame(np.random.randn(7,3))
+df.iloc[:4,1]=NA
+df.iloc[:2,2]=NA
+df
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-0.204708</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.555730</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.092908</td>
+      <td>NaN</td>
+      <td>0.769023</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.246435</td>
+      <td>NaN</td>
+      <td>-1.296221</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.274992</td>
+      <td>0.228913</td>
+      <td>1.352917</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.886429</td>
+      <td>-2.001637</td>
+      <td>-0.371843</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1.669025</td>
+      <td>-0.438570</td>
+      <td>-0.539741</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df.dropna()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>4</th>
+      <td>0.274992</td>
+      <td>0.228913</td>
+      <td>1.352917</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.886429</td>
+      <td>-2.001637</td>
+      <td>-0.371843</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1.669025</td>
+      <td>-0.438570</td>
+      <td>-0.539741</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#可以设置thresh=2
+df.dropna(thresh=2)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>0.092908</td>
+      <td>NaN</td>
+      <td>0.769023</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.246435</td>
+      <td>NaN</td>
+      <td>-1.296221</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.274992</td>
+      <td>0.228913</td>
+      <td>1.352917</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.886429</td>
+      <td>-2.001637</td>
+      <td>-0.371843</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1.669025</td>
+      <td>-0.438570</td>
+      <td>-0.539741</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#7.1.2 补全缺失值
+```
+
+
+```python
+#fillna()可以使用常数来代替缺失值
+```
+
+
+```python
+df.fillna(0)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-0.204708</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.555730</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.092908</td>
+      <td>0.000000</td>
+      <td>0.769023</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.246435</td>
+      <td>0.000000</td>
+      <td>-1.296221</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.274992</td>
+      <td>0.228913</td>
+      <td>1.352917</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.886429</td>
+      <td>-2.001637</td>
+      <td>-0.371843</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1.669025</td>
+      <td>-0.438570</td>
+      <td>-0.539741</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#填充缺失值是使用字典，可以指定不同的列用不同的值填充
+df.fillna({1:0.5,2:0})
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-0.204708</td>
+      <td>0.500000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.555730</td>
+      <td>0.500000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.092908</td>
+      <td>0.500000</td>
+      <td>0.769023</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.246435</td>
+      <td>0.500000</td>
+      <td>-1.296221</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.274992</td>
+      <td>0.228913</td>
+      <td>1.352917</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.886429</td>
+      <td>-2.001637</td>
+      <td>-0.371843</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1.669025</td>
+      <td>-0.438570</td>
+      <td>-0.539741</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#fillna返回的是一个新的对象，但你也可以修改已经存在的对象
+_=df.fillna(0,inplace=True)
+df
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-0.204708</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.555730</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.092908</td>
+      <td>0.000000</td>
+      <td>0.769023</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.246435</td>
+      <td>0.000000</td>
+      <td>-1.296221</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.274992</td>
+      <td>0.228913</td>
+      <td>1.352917</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.886429</td>
+      <td>-2.001637</td>
+      <td>-0.371843</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1.669025</td>
+      <td>-0.438570</td>
+      <td>-0.539741</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#生成一个例子
+df=pd.DataFrame(np.random.randn(6,3))
+df.iloc[2:,1]=NA
+df.iloc[4:,2]=NA
+df
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.476985</td>
+      <td>3.248944</td>
+      <td>-1.021228</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.577087</td>
+      <td>0.124121</td>
+      <td>0.302614</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.523772</td>
+      <td>NaN</td>
+      <td>1.343810</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-0.713544</td>
+      <td>NaN</td>
+      <td>-2.370232</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-1.860761</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>-1.265934</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#method='ffill',填充方法，这个默认是前项填充
+df.fillna(method='ffill')
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.476985</td>
+      <td>3.248944</td>
+      <td>-1.021228</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.577087</td>
+      <td>0.124121</td>
+      <td>0.302614</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.523772</td>
+      <td>0.124121</td>
+      <td>1.343810</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-0.713544</td>
+      <td>0.124121</td>
+      <td>-2.370232</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-1.860761</td>
+      <td>0.124121</td>
+      <td>-2.370232</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>-1.265934</td>
+      <td>0.124121</td>
+      <td>-2.370232</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#参数limit，最大填充范围
+df.fillna(method='ffill',limit=2)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.476985</td>
+      <td>3.248944</td>
+      <td>-1.021228</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.577087</td>
+      <td>0.124121</td>
+      <td>0.302614</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.523772</td>
+      <td>0.124121</td>
+      <td>1.343810</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-0.713544</td>
+      <td>0.124121</td>
+      <td>-2.370232</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-1.860761</td>
+      <td>NaN</td>
+      <td>-2.370232</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>-1.265934</td>
+      <td>NaN</td>
+      <td>-2.370232</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+data=pd.Series([1.,NA,3.5,NA,7])
+data
+```
+
+
+
+
+    0    1.0
+    1    NaN
+    2    3.5
+    3    NaN
+    4    7.0
+    dtype: float64
+
+
+
+
+```python
+data.fillna(data.mean())#用三个数的均值取填充
+```
+
+
+
+
+    0    1.000000
+    1    3.833333
+    2    3.500000
+    3    3.833333
+    4    7.000000
+    dtype: float64
+
+
+
+
+```python
+####################
+#7.2 数据转换 Data Transformation
+import numpy as np
+import pandas as pd
+PREVIOUS_MAX_ROWS =pd.options.display.max_rows
+pd.options.display.max_rows=20
+np.random.seed(12345)
+import matplotlib.pyplot as plt
+plt.rc('figure',figsize=(10,6))
+np.set_printoptions(precision=4,suppress=True)
+
+```
+
+
+```python
+#7.2.1  删除重复值 Removing Duplicates
+#由于各种原因，DataFrame会出现重复行
+```
+
+
+```python
+data=pd.DataFrame({'k1':['one','two']*3+['two'],
+                  'k2':[1,1,2,3,3,4,4]})
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k1</th>
+      <th>k2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>one</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>two</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>one</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>two</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>one</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>two</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>two</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#判断该行之前是否出现过
+data.duplicated()
+```
+
+
+
+
+    0    False
+    1    False
+    2    False
+    3    False
+    4    False
+    5    False
+    6     True
+    dtype: bool
+
+
+
+
+```python
+#删除重复的行
+data.drop_duplicates()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k1</th>
+      <th>k2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>one</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>two</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>one</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>two</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>one</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>two</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#对于某列的重复值
+data['v1']=range(7)
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k1</th>
+      <th>k2</th>
+      <th>v1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>one</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>two</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>one</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>two</td>
+      <td>3</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>one</td>
+      <td>3</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>two</td>
+      <td>4</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>two</td>
+      <td>4</td>
+      <td>6</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#可以指定列名
+data.drop_duplicates(['k1'])
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k1</th>
+      <th>k2</th>
+      <th>v1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>one</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>two</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#默认重复值，默认保留第一次检测到的
+#传入keep='last',将会返回后一个
+data.drop_duplicates(['k2'],keep='last')
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k1</th>
+      <th>k2</th>
+      <th>v1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>two</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>one</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>one</td>
+      <td>3</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>two</td>
+      <td>4</td>
+      <td>6</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#7.2.2 使用函数或映射进行数据转换
+data=pd.DataFrame({'food':['bacon','pulled pork','bacon',
+                          'Pastrami','corned beef','Bacon',
+                          'pastrami','honey ham','nova lox'],
+                  'ounces':[4,3,12,6,7.5,8,3,5,6]})
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>food</th>
+      <th>ounces</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>bacon</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>pulled pork</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>bacon</td>
+      <td>12.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Pastrami</td>
+      <td>6.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>corned beef</td>
+      <td>7.5</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Bacon</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>pastrami</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>honey ham</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>nova lox</td>
+      <td>6.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#想要对食品中肉的种类做个标签
+meat_to_animal={
+    'bacon':'pig',
+    'pulled pork':'pig',
+    'pastrami':'cow',
+    'corned beef':'cow',
+    'honey ham':'pig',
+    'nova lox':'salmon'
+}
+```
+
+
+```python
+#首先将字母统一为小写
+lowercased=data['food'].str.lower()
+lowercased
+```
+
+
+
+
+    0          bacon
+    1    pulled pork
+    2          bacon
+    3       pastrami
+    4    corned beef
+    5          bacon
+    6       pastrami
+    7      honey ham
+    8       nova lox
+    Name: food, dtype: object
+
+
+
+
+```python
+#.map(),按照字典的指定进行匹配
+data['animal']=lowercased.map(meat_to_animal)
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>food</th>
+      <th>ounces</th>
+      <th>animal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>bacon</td>
+      <td>4.0</td>
+      <td>pig</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>pulled pork</td>
+      <td>3.0</td>
+      <td>pig</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>bacon</td>
+      <td>12.0</td>
+      <td>pig</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Pastrami</td>
+      <td>6.0</td>
+      <td>cow</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>corned beef</td>
+      <td>7.5</td>
+      <td>cow</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Bacon</td>
+      <td>8.0</td>
+      <td>pig</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>pastrami</td>
+      <td>3.0</td>
+      <td>cow</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>honey ham</td>
+      <td>5.0</td>
+      <td>pig</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>nova lox</td>
+      <td>6.0</td>
+      <td>salmon</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#也可以写成下面这种形式
+data['food'].map(lambda x: meat_to_animal[x.lower()])
+```
+
+
+
+
+    0       pig
+    1       pig
+    2       pig
+    3       cow
+    4       cow
+    5       pig
+    6       cow
+    7       pig
+    8    salmon
+    Name: food, dtype: object
+
+
+
+
+```python
+data['food'].map(lambda x:print(x))
+```
+
+    bacon
+    pulled pork
+    bacon
+    Pastrami
+    corned beef
+    Bacon
+    pastrami
+    honey ham
+    nova lox
+    
+
+
+
+
+    0    None
+    1    None
+    2    None
+    3    None
+    4    None
+    5    None
+    6    None
+    7    None
+    8    None
+    Name: food, dtype: object
+
+
+
+
+```python
+meat_to_animal['bacon']
+```
+
+
+
+
+    'pig'
+
+
+
+
+```python
+#7.2.3 替代值Replacing Value
+#replace也可以用于替换
+data=pd.Series([1.,-999.,2.,-999.,-1000.,3.])
+data
+
+```
+
+
+
+
+    0       1.0
+    1    -999.0
+    2       2.0
+    3    -999.0
+    4   -1000.0
+    5       3.0
+    dtype: float64
+
+
+
+
+```python
+#-999很可能是缺失值的标识
+data.replace(-999,np.nan)
+```
+
+
+
+
+    0       1.0
+    1       NaN
+    2       2.0
+    3       NaN
+    4   -1000.0
+    5       3.0
+    dtype: float64
+
+
+
+
+```python
+#一次替代多个值
+data.replace([-999,-1000],np.nan)
+```
+
+
+
+
+    0    1.0
+    1    NaN
+    2    2.0
+    3    NaN
+    4    NaN
+    5    3.0
+    dtype: float64
+
+
+
+
+```python
+#替换为不同的值，用列表
+data.replace([-999,-1000],[np.nan,0])
+```
+
+
+
+
+    0    1.0
+    1    NaN
+    2    2.0
+    3    NaN
+    4    0.0
+    5    3.0
+    dtype: float64
+
+
+
+
+```python
+#或者用字典的形式传递参数
+data.replace({-999:np.nan,-1000:0})
+```
+
+
+
+
+    0    1.0
+    1    NaN
+    2    2.0
+    3    NaN
+    4    0.0
+    5    3.0
+    dtype: float64
+
+
+
+
+```python
+#7.2.4 重命名轴索引
+data=pd.DataFrame(np.arange(12).reshape((3,4)),
+                 index=['Ohio','Colorado','New York'],
+                 columns=['one','two','three','four'])
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>one</th>
+      <th>two</th>
+      <th>three</th>
+      <th>four</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Ohio</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>Colorado</th>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>New York</th>
+      <td>8</td>
+      <td>9</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#先定义一个匿名函数，取出0-3，全大写
+transform=lambda x:x[:4].upper()
+transform
+```
+
+
+
+
+    <function __main__.<lambda>(x)>
+
+
+
+
+```python
+#data的index属性中取出前四个，并执行upper函数
+data.index.map(transform)
+```
+
+
+
+
+    Index(['OHIO', 'COLO', 'NEW '], dtype='object')
+
+
+
+
+```python
+#让原来的index，等于转为大写处理之后的，可以看到index被替换掉了
+data.index=data.index.map(transform)
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>one</th>
+      <th>two</th>
+      <th>three</th>
+      <th>four</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>OHIO</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>COLO</th>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>NEW</th>
+      <td>8</td>
+      <td>9</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#或者使用rename方法
+data.rename(index=str.title,columns=str.upper)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ONE</th>
+      <th>TWO</th>
+      <th>THREE</th>
+      <th>FOUR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Ohio</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>Colo</th>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>New</th>
+      <td>8</td>
+      <td>9</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#可以用字典指定，替换方案
+data.rename(index={'OHIO':'INDIANA'},
+           columns={'three':'peekaboo'})
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>one</th>
+      <th>two</th>
+      <th>peekaboo</th>
+      <th>four</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>INDIANA</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>COLO</th>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>NEW</th>
+      <td>8</td>
+      <td>9</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#想要改变原有变量，传入参数inplace=True
+data.rename(index={'OHIO':'INDIANA'},inplace=True)
+data
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>one</th>
+      <th>two</th>
+      <th>three</th>
+      <th>four</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>INDIANA</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>COLO</th>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>NEW</th>
+      <td>8</td>
+      <td>9</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#7.2.5 离散化和分箱
+#也就是分组
+ages=[20,22,25,27,21,23,37,31,61,45,41,32]
+```
+
+
+```python
+#分为18-25，26-35，36-60，61-100
+bins=[18,25,35,60,100]
+```
+
+
+```python
+#pd.cut(ages,bins)进行分组
+#返回的对象是一个特殊的对象
+cats=pd.cut(ages,bins)
+cats
+```
+
+
+
+
+    [(18, 25], (18, 25], (18, 25], (25, 35], (18, 25], ..., (25, 35], (60, 100], (35, 60], (35, 60], (25, 35]]
+    Length: 12
+    Categories (4, interval[int64]): [(18, 25] < (25, 35] < (35, 60] < (60, 100]]
+
+
+
+
+```python
+#查看里面的属性，12个数字对应分组标签
+#如20属于第0类
+cats.codes
+```
+
+
+
+
+    array([0, 0, 0, 1, 0, 0, 2, 1, 3, 2, 2, 1], dtype=int8)
+
+
+
+
+```python
+#相当于x轴
+cats.categories
+```
+
+
+
+
+    IntervalIndex([(18, 25], (25, 35], (35, 60], (60, 100]],
+                  closed='right',
+                  dtype='interval[int64]')
+
+
+
+
+```python
+#统计一下每个里面的个数
+pd.value_counts(cats)
+```
+
+
+
+
+    (18, 25]     5
+    (25, 35]     3
+    (35, 60]     3
+    (60, 100]    1
+    dtype: int64
+
+
+
+
+```python
+#上面的开区间与闭区间可以自己设置
+#传入right=False可以变为左闭右开区间
+pd.cut(ages,[18,26,36,61,100],right=False)
+```
+
+
+
+
+    [[18, 26), [18, 26), [18, 26), [26, 36), [18, 26), ..., [26, 36), [61, 100), [36, 61), [36, 61), [26, 36)]
+    Length: 12
+    Categories (4, interval[int64]): [[18, 26) < [26, 36) < [36, 61) < [61, 100)]
+
+
+
+
+```python
+#可以给分类价格名称
+group_names=['Youth','YoungAdult','MiddleAged','Senior']
+pd.cut(ages,bins,labels=group_names)
+```
+
+
+
+
+    ['Youth', 'Youth', 'Youth', 'YoungAdult', 'Youth', ..., 'YoungAdult', 'Senior', 'MiddleAged', 'MiddleAged', 'YoungAdult']
+    Length: 12
+    Categories (4, object): ['Youth' < 'YoungAdult' < 'MiddleAged' < 'Senior']
+
+
+
+
+```python
+#数据均匀分成四份
+data=np.random.rand(20)
+data
+```
+
+
+
+
+    array([0.9296, 0.3164, 0.1839, 0.2046, 0.5677, 0.5955, 0.9645, 0.6532,
+           0.7489, 0.6536, 0.7477, 0.9613, 0.0084, 0.1064, 0.2987, 0.6564,
+           0.8098, 0.8722, 0.9646, 0.7237])
+
+
+
+
+```python
+#precision=2将十进制精度限制为两位
+pd.cut(data,4,precision=2)
+```
+
+
+
+
+    [(0.73, 0.96], (0.25, 0.49], (0.0074, 0.25], (0.0074, 0.25], (0.49, 0.73], ..., (0.49, 0.73], (0.73, 0.96], (0.73, 0.96], (0.73, 0.96], (0.49, 0.73]]
+    Length: 20
+    Categories (4, interval[float64]): [(0.0074, 0.25] < (0.25, 0.49] < (0.49, 0.73] < (0.73, 0.96]]
+
+
+
+
+```python
+#qcut基于样本的分位数分割
+data=np.random.randn(1000)
+data
+```
+
+
+
+
+    array([ 1.3529,  0.8864, -2.0016, -0.3718,  1.669 , -0.4386, -0.5397,
+            0.477 ,  3.2489, -1.0212, -0.5771,  0.1241,  0.3026,  0.5238,
+            0.0009,  1.3438, -0.7135, -0.8312, -2.3702, -1.8608, -0.8608,
+            0.5601, -1.2659,  0.1198, -1.0635,  0.3329, -2.3594, -0.1995,
+           -1.542 , -0.9707, -1.307 ,  0.2863,  0.378 , -0.7539,  0.3313,
+            1.3497,  0.0699,  0.2467, -0.0119,  1.0048,  1.3272, -0.9193,
+           -1.5491,  0.0222,  0.7584, -0.6605,  0.8626, -0.01  ,  0.05  ,
+            0.6702,  0.853 , -0.9559, -0.0235, -2.3042, -0.6525, -1.2183,
+           -1.3326,  1.0746,  0.7236,  0.69  ,  1.0015, -0.5031, -0.6223,
+           -0.9212, -0.7262,  0.2229,  0.0513, -1.1577,  0.8167,  0.4336,
+            1.0107,  1.8249, -0.9975,  0.8506, -0.1316,  0.9124,  0.1882,
+            2.1695, -0.1149,  2.0037,  0.0296,  0.7953,  0.1181, -0.7485,
+            0.585 ,  0.1527, -1.5657, -0.5625, -0.0327, -0.929 , -0.4826,
+           -0.0363,  1.0954,  0.9809, -0.5895,  1.5817, -0.5287,  0.457 ,
+            0.93  , -1.5693, -1.0225, -0.4028,  0.2205, -0.1934,  0.6692,
+           -1.649 , -2.2528, -1.1668,  0.3536,  0.7021, -0.2746, -0.1391,
+            0.1077, -0.6065, -0.4171, -0.017 , -1.2241, -1.8008,  1.6347,
+            0.989 ,  0.4579,  0.5552,  1.3067, -0.4406, -0.3014,  0.4988,
+           -0.824 ,  1.3206,  0.508 , -0.6534,  0.187 , -0.3917, -0.2723,
+           -0.0171,  0.6803,  0.6355, -0.7572,  0.7181, -0.3043, -1.6778,
+            0.427 , -1.5637, -0.3675,  1.0459,  1.22  , -0.2477, -0.4162,
+           -0.1167, -1.8448,  2.0687, -0.777 ,  1.4402, -0.1106,  1.2274,
+            1.9208,  0.7464,  2.2247, -0.6794,  0.7274, -0.8687, -1.2139,
+           -0.4706, -0.9192, -0.8388,  0.4352, -0.5578, -0.5675, -0.3726,
+           -0.9266,  1.7551,  1.2098,  1.27  , -0.9744, -0.6347, -0.3957,
+           -0.2894, -0.7343, -0.7285,  0.8388,  0.2669,  0.7212,  0.911 ,
+           -1.0209, -1.4134,  1.2966,  0.2523,  1.1275, -0.5684,  0.3094,
+           -0.5774, -1.1686, -0.825 , -2.6444, -0.153 , -0.7519, -0.1326,
+            1.4573,  0.6095, -0.4938,  1.24  , -0.1357,  1.43  , -0.8469,
+            0.6033,  1.2636, -0.2555, -0.4457,  0.4684, -0.9616, -1.8245,
+            0.6254,  1.0229,  1.1074,  0.0909, -0.3501,  0.218 , -0.8948,
+           -1.7415, -1.0523,  1.4366, -0.5762, -2.4203, -1.0623,  0.2374,
+            0.001 ,  0.0653, -1.3675, -0.0303,  0.9405, -0.6424,  1.0402,
+           -1.0829,  0.4292, -0.2362,  0.6418, -0.3317,  1.3941, -1.0767,
+           -0.1925, -0.8712,  0.4209, -1.2114, -0.2589, -0.5816, -1.2604,
+            0.4646, -1.0702,  0.8042, -0.1567,  2.0104, -0.8871, -0.9779,
+           -0.2672,  0.4833, -0.4003,  0.4499,  0.3996, -0.1516, -2.5579,
+            0.1608,  0.0765, -0.2972, -1.2943, -0.8852, -0.1875, -0.4936,
+           -0.1154, -0.3507,  0.0447, -0.8978,  0.8909, -1.1512, -2.6123,
+            1.1413, -0.8671,  0.3836, -0.437 ,  0.3475, -1.2302,  0.5711,
+            0.0601, -0.2255,  1.3497,  1.3503, -0.3867,  0.866 ,  1.7472,
+           -1.4102, -0.3782, -0.3458,  0.3801,  0.189 ,  1.3233, -2.2646,
+           -0.915 , -0.479 ,  1.0472,  0.9239, -0.1142,  0.4058,  0.2885,
+           -0.4348,  0.3588, -0.3882,  2.1287,  1.4096, -0.1054,  0.7004,
+            2.0929, -0.137 , -0.9305,  0.3275,  1.303 , -1.4094, -0.1441,
+           -0.7164,  0.1036, -1.4957, -1.1749,  2.614 , -0.6893, -0.7517,
+            0.6363, -1.1576,  0.6147,  1.0214,  0.6683, -0.8095, -0.9081,
+            1.5123,  0.0951,  1.1847,  0.637 , -0.5393, -0.0551, -1.1359,
+           -0.1705, -1.1581,  1.1046,  0.6342,  1.2597,  0.9649, -0.4344,
+           -0.8796, -0.6948,  1.2264,  0.4573,  0.1157,  1.014 , -1.135 ,
+           -0.2634,  1.3064, -1.6108, -1.0266,  1.2416, -0.1568, -2.4491,
+           -1.0339,  1.5995,  0.4741,  0.1513, -0.5422, -0.4755,  0.1064,
+           -1.3082,  2.1732,  0.5646, -0.1905, -0.9169, -0.9758,  2.2123,
+            0.0739,  1.8186, -1.5815, -0.7744,  0.5529,  0.1061,  3.9275,
+           -0.2551,  0.8541, -0.3648,  0.1311, -0.6976,  1.3356, -0.151 ,
+            0.4429,  0.9416,  0.5334,  0.3563, -0.0101,  1.4158,  0.5661,
+            0.4565,  0.1948, -0.6551, -0.5652,  3.1769,  0.9595, -0.9753,
+           -1.1167, -1.1044, -0.8988, -1.3666,  0.4514, -1.5872, -0.7328,
+           -0.5146, -0.6119, -0.0316,  0.2341,  0.2719,  1.2308,  1.2883,
+            0.8518, -1.5292, -1.5517,  0.2973,  0.3448, -0.3981,  0.4294,
+           -0.2859, -2.2284,  0.0666,  0.49  ,  1.8679,  2.0704, -0.2454,
+            0.7623,  0.129 ,  0.6271, -1.0622, -1.4995,  0.5452,  0.4008,
+           -1.9462,  0.505 , -0.9105, -0.2197,  0.4081, -0.6031, -0.3611,
+            0.564 , -1.0566,  1.392 , -1.7613, -0.9116,  0.6583, -1.5795,
+            0.4577, -0.1833, -0.6855,  0.1064, -0.3182,  0.4337,  0.5718,
+            0.5671,  0.0816, -0.3023, -0.7269,  0.1803, -0.5202,  0.3981,
+           -0.9169, -0.0827, -1.9397,  1.408 ,  1.5124,  0.5265, -0.2669,
+            0.8623,  0.0838, -1.8723, -0.9628,  0.0801,  0.1287, -0.4791,
+           -0.6403,  0.746 , -0.6225,  0.9363,  0.75  , -0.0567,  2.3007,
+            0.5695,  1.4894,  1.2643, -0.7618, -0.3316, -1.7513,  0.6289,
+            0.2825, -1.3381, -0.5006,  0.1216,  1.7083, -0.971 , -0.6193,
+           -0.7267,  1.2217,  0.5037, -1.3879,  0.2049,  0.6037,  0.5457,
+            0.2355,  0.1118, -1.2515, -2.9493,  0.6346,  0.1242,  1.2976,
+           -1.6869,  1.0895,  2.0609, -0.2412, -0.9479,  0.6763, -0.6534,
+           -0.6523,  0.5288,  0.3578,  0.1886,  0.8694, -0.0507, -0.7164,
+           -0.1033, -1.141 , -0.5008, -0.3893, -0.4739,  0.1287,  0.1537,
+            0.4448,  0.1285,  0.2525, -0.9406,  1.0021, -0.5254, -0.8874,
+            1.8313, -0.923 ,  0.7005, -0.8922,  2.3007, -0.8178,  0.5138,
+            0.6236,  1.4892,  1.9405,  0.5432,  0.5062,  1.662 , -1.1892,
+            0.0936, -0.5392, -1.4374,  0.1879, -0.4505, -0.5169, -0.0956,
+            0.3164,  0.6033, -1.4946, -0.1109,  0.2413, -0.5826, -0.2411,
+            0.2364,  0.1247,  1.0463, -0.2731, -0.5348, -0.3066, -0.1622,
+           -1.0832,  0.7084,  1.5207,  0.2903, -0.6831, -0.9503,  0.4007,
+           -0.1261,  0.3982,  0.1416, -0.2641, -0.4522,  0.7582, -0.5156,
+           -0.5912,  0.8967, -0.9714,  1.8408,  0.1539, -0.2741, -1.7849,
+            0.981 , -0.8737, -1.0156, -0.4112,  1.4656, -1.0062, -0.9021,
+            0.7528, -0.4905, -0.5247, -0.6992,  0.3524,  0.0681, -0.9303,
+            0.8454,  0.0165,  0.845 ,  1.8508,  0.0221, -1.3692,  0.8872,
+            0.0143, -0.0742, -0.0486,  1.235 , -0.4333,  1.391 ,  0.8202,
+           -0.2474,  0.3023,  0.544 , -0.9424, -1.2664,  0.9372, -0.7201,
+           -1.594 , -0.3755, -0.9587,  0.7943, -1.6051,  0.5437,  0.9252,
+           -1.4696, -0.3996,  1.4173, -0.8976,  1.8448,  1.2532, -1.4909,
+           -0.0277,  1.3752, -0.0252, -0.6679, -2.868 ,  0.2107,  1.2872,
+           -0.5743,  0.4953,  0.396 ,  0.5888, -1.2818,  2.0299, -0.5019,
+           -0.1593, -1.4962,  0.0114,  0.4194,  2.0512, -0.3688, -1.6893,
+            0.1477, -0.181 ,  0.1581, -0.3966, -0.4002, -0.8249, -0.2444,
+            1.2195, -0.4336,  0.8612, -0.3345,  0.1596, -0.9842,  0.7541,
+           -0.2844,  0.3248, -0.8854, -1.2809,  0.1961,  0.9546, -0.801 ,
+            0.0159,  1.0876, -0.6312, -0.0227,  0.6859,  0.5192,  0.1827,
+            0.2046, -0.266 , -0.0002,  1.2395, -0.8197, -0.2604,  0.5191,
+            0.1431, -0.1167,  1.4967, -1.4843, -1.6712,  0.9172, -0.758 ,
+            2.0648, -0.8508,  0.4995, -0.0793, -1.4033,  1.5789,  0.0004,
+            0.9009, -0.4549, -0.8645,  1.1291,  0.0579, -0.4337,  0.0927,
+           -1.3978,  1.4578, -0.1768, -0.2542, -1.2634,  0.4523, -0.8401,
+           -0.5027,  0.5134,  1.6417,  0.5808, -1.7073, -0.1784, -0.8285,
+            1.2863, -0.4065,  0.1566,  0.0521,  0.9558,  0.7432, -0.4863,
+            1.9205, -0.6527, -0.1733, -0.3604, -0.3804, -1.2981,  0.5279,
+           -0.0931,  0.4012, -0.1026,  0.0309,  2.6161, -0.7856, -0.507 ,
+           -2.0182, -0.6769,  2.6667,  1.4515,  0.6346, -0.5028,  0.5129,
+            1.7568, -0.9743,  0.6804,  0.9558,  1.5015, -0.7563,  0.4735,
+            1.7137, -1.1477,  0.0029, -1.1006, -0.2975,  0.5024, -0.001 ,
+           -0.6746,  0.298 ,  1.4656, -0.3036, -0.9945,  0.1899, -1.684 ,
+           -0.4584,  0.5434, -1.1873, -0.4126,  1.1771, -0.3137,  1.579 ,
+            0.3754, -1.5681, -0.9009,  0.6523,  0.8716,  0.2682,  0.9477,
+            0.1473, -1.7725,  0.5924,  0.0903,  0.6511, -0.0812,  0.8019,
+            0.1398, -0.501 , -0.1283,  0.4146,  0.6046,  2.1341,  0.9412,
+           -0.9315, -0.1247,  0.2007,  0.1803, -0.3204, -1.5961, -1.2817,
+            1.5026,  0.6535, -0.3195,  0.9551,  0.262 ,  0.1608, -0.5717,
+            0.3517,  1.115 ,  1.1833,  1.0609,  0.5107, -0.9388, -0.5465,
+            0.59  ,  1.4822,  0.1021,  0.2654,  0.0032, -2.595 , -1.5556,
+            1.103 ,  0.5547, -1.289 ,  0.3852, -1.7173, -1.0184,  0.0516,
+            0.5033, -0.5432, -0.5067,  0.7297,  0.4343, -1.1337,  1.424 ,
+            0.2664, -0.8543, -0.5506, -0.6191,  1.0389, -0.9106,  0.53  ,
+           -0.0085, -1.129 ,  0.5699, -0.8634, -1.3561, -0.0572, -0.1086,
+            1.6524, -1.3509, -0.5461,  0.9914,  2.201 ,  0.4279,  0.2905,
+            0.612 , -0.5125, -0.7242,  1.6929, -0.2993,  1.5717,  0.4614,
+           -0.6738, -1.141 , -1.2289, -1.1593, -0.3208,  1.0883, -0.9062,
+           -0.4642, -0.5134,  1.6178, -0.8167,  0.2447, -1.3111,  0.3884,
+            1.5924,  0.8704,  0.3352,  0.649 , -0.1832,  0.5002,  1.3688,
+            0.8951,  0.6473, -0.5679, -0.5795, -0.7514,  1.0755, -0.6211,
+            1.8786,  1.2602,  0.3101,  0.1064,  0.248 , -1.3938, -0.6694,
+           -0.5668, -0.3818, -0.9465, -1.0651, -1.3318, -0.9865, -0.3784,
+            0.7647,  0.0604,  0.6185, -0.4849, -0.2805,  0.407 ,  1.0252,
+            0.2548,  0.0875,  0.0707, -0.5732,  1.2289, -0.9622,  1.5256,
+            0.8273,  0.9125, -0.1273,  0.6343, -1.5309, -1.2907, -0.5262,
+           -1.1322, -0.4998, -0.7285, -0.5831,  0.3293, -0.8269, -0.5369,
+           -0.563 ,  0.9184, -0.0794, -0.2786, -0.1305, -1.397 , -0.2447,
+            0.8303,  0.2408, -0.9157, -2.2253, -0.6631, -0.3212,  0.4984,
+            0.3803, -1.067 ,  0.2555,  2.1113, -0.6342,  1.3688, -0.9706,
+            0.6542, -1.1719, -0.0032, -0.7456,  1.5983, -0.9134,  2.4029,
+           -0.5894,  0.1077, -0.1393, -1.1599,  0.619 ,  1.3739, -0.9835,
+            0.9309, -0.8117, -1.8302, -0.1387,  0.3341,  0.4887, -0.1781,
+            2.1223,  0.0612,  0.8841, -0.6085, -0.0721,  0.5441])
+
+
+
+
+```python
+cats=pd.qcut(data,4)
+cats
+```
+
+
+
+
+    [(0.626, 3.928], (0.626, 3.928], (-2.9499999999999997, -0.691], (-0.691, -0.0171], (0.626, 3.928], ..., (-0.0171, 0.626], (0.626, 3.928], (-0.691, -0.0171], (-0.691, -0.0171], (-0.0171, 0.626]]
+    Length: 1000
+    Categories (4, interval[float64]): [(-2.9499999999999997, -0.691] < (-0.691, -0.0171] < (-0.0171, 0.626] < (0.626, 3.928]]
+
+
+
+
+```python
+#每个范围都是250个
+pd.value_counts(cats)
+```
+
+
+
+
+    (-2.9499999999999997, -0.691]    250
+    (-0.691, -0.0171]                250
+    (-0.0171, 0.626]                 250
+    (0.626, 3.928]                   250
+    dtype: int64
+
+
+
+
+```python
+#可以传入自定义分位数，0-1之间的数组
+cats=pd.qcut(data,[0,0.1,0.5,0.9,1.])
+cats
+```
+
+
+
+
+    [(1.297, 3.928], (-0.0171, 1.297], (-2.9499999999999997, -1.191], (-1.191, -0.0171], (1.297, 3.928], ..., (-0.0171, 1.297], (-0.0171, 1.297], (-1.191, -0.0171], (-1.191, -0.0171], (-0.0171, 1.297]]
+    Length: 1000
+    Categories (4, interval[float64]): [(-2.9499999999999997, -1.191] < (-1.191, -0.0171] < (-0.0171, 1.297] < (1.297, 3.928]]
+
+
+
+
+```python
+pd.value_counts(cats)
+```
+
+
+
+
+    (-1.191, -0.0171]                400
+    (-0.0171, 1.297]                 400
+    (-2.9499999999999997, -1.191]    100
+    (1.297, 3.928]                   100
+    dtype: int64
+
+
+
+
+```python
+#7.2.6 检测和过滤异常值
+#下面是具有正态分布数据的DataFrame
+data=pd.DataFrame(np.random.randn(1000,4))
+data.describe()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>1000.000000</td>
+      <td>1000.000000</td>
+      <td>1000.000000</td>
+      <td>1000.000000</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>0.021425</td>
+      <td>-0.005165</td>
+      <td>-0.055670</td>
+      <td>0.044107</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>1.008404</td>
+      <td>0.995532</td>
+      <td>0.994484</td>
+      <td>0.996884</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>-3.184377</td>
+      <td>-3.745356</td>
+      <td>-3.428254</td>
+      <td>-3.645860</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>-0.628122</td>
+      <td>-0.699383</td>
+      <td>-0.747478</td>
+      <td>-0.599807</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>-0.016127</td>
+      <td>-0.029924</td>
+      <td>-0.091364</td>
+      <td>0.043663</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>0.690847</td>
+      <td>0.694459</td>
+      <td>0.620197</td>
+      <td>0.740562</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>3.525865</td>
+      <td>2.735527</td>
+      <td>3.366626</td>
+      <td>2.653656</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#假设想找出一列中绝对值大于三的值
+col=data[2]
+col[np.abs(col)>3]
+```
+
+
+
+
+    269   -3.428254
+    646    3.366626
+    Name: 2, dtype: float64
+
+
+
+
+```python
+#选出所有绝对值大于三的，使用any方法
+data[(np.abs(data)>3).any(1)]
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>52</th>
+      <td>-0.025907</td>
+      <td>-3.399312</td>
+      <td>-0.974657</td>
+      <td>-0.685312</td>
+    </tr>
+    <tr>
+      <th>71</th>
+      <td>3.260383</td>
+      <td>0.963301</td>
+      <td>1.201206</td>
+      <td>-1.852001</td>
+    </tr>
+    <tr>
+      <th>147</th>
+      <td>-0.196713</td>
+      <td>-3.745356</td>
+      <td>-1.520113</td>
+      <td>-0.346839</td>
+    </tr>
+    <tr>
+      <th>246</th>
+      <td>-3.056990</td>
+      <td>1.918403</td>
+      <td>-0.578828</td>
+      <td>1.847446</td>
+    </tr>
+    <tr>
+      <th>269</th>
+      <td>0.326045</td>
+      <td>0.425384</td>
+      <td>-3.428254</td>
+      <td>-0.296336</td>
+    </tr>
+    <tr>
+      <th>333</th>
+      <td>-3.184377</td>
+      <td>1.369891</td>
+      <td>-1.074833</td>
+      <td>-0.089937</td>
+    </tr>
+    <tr>
+      <th>554</th>
+      <td>0.208011</td>
+      <td>-0.150923</td>
+      <td>-0.362528</td>
+      <td>-3.548824</td>
+    </tr>
+    <tr>
+      <th>646</th>
+      <td>0.193299</td>
+      <td>1.397822</td>
+      <td>3.366626</td>
+      <td>-2.372214</td>
+    </tr>
+    <tr>
+      <th>793</th>
+      <td>3.525865</td>
+      <td>0.283070</td>
+      <td>0.544635</td>
+      <td>0.462204</td>
+    </tr>
+    <tr>
+      <th>813</th>
+      <td>-0.450721</td>
+      <td>-0.080332</td>
+      <td>0.599947</td>
+      <td>-3.645860</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#绝对值大于三的数，变为-3或者3
+#np.sign(data),数值的符号，-1或者1
+data[np.abs(data)>3]=np.sign(data)*3
+data.describe()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>1000.000000</td>
+      <td>1000.000000</td>
+      <td>1000.000000</td>
+      <td>1000.000000</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>0.020880</td>
+      <td>-0.004021</td>
+      <td>-0.055608</td>
+      <td>0.045301</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>1.005160</td>
+      <td>0.991718</td>
+      <td>0.991924</td>
+      <td>0.992863</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>-3.000000</td>
+      <td>-3.000000</td>
+      <td>-3.000000</td>
+      <td>-3.000000</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>-0.628122</td>
+      <td>-0.699383</td>
+      <td>-0.747478</td>
+      <td>-0.599807</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>-0.016127</td>
+      <td>-0.029924</td>
+      <td>-0.091364</td>
+      <td>0.043663</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>0.690847</td>
+      <td>0.694459</td>
+      <td>0.620197</td>
+      <td>0.740562</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>3.000000</td>
+      <td>2.735527</td>
+      <td>3.000000</td>
+      <td>2.653656</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#np.sign(data)
+np.sign(data).head()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>-1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-1.0</td>
+      <td>-1.0</td>
+      <td>-1.0</td>
+      <td>-1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>-1.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>-1.0</td>
+      <td>-1.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.0</td>
+      <td>-1.0</td>
+      <td>-1.0</td>
+      <td>-1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#置换和随机抽样
+df=pd.DataFrame(np.arange(5*4).reshape((5,4)))
+df
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8</td>
+      <td>9</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12</td>
+      <td>13</td>
+      <td>14</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16</td>
+      <td>17</td>
+      <td>18</td>
+      <td>19</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#生成一个长度为5的随机数数组
+sampler=np.random.permutation(5)
+sampler
+```
+
+
+
+
+    array([1, 0, 4, 2, 3])
+
+
+
+
+```python
+#take函数，按索引排序
+df.take(sampler)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16</td>
+      <td>17</td>
+      <td>18</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8</td>
+      <td>9</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>12</td>
+      <td>13</td>
+      <td>14</td>
+      <td>15</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#生成一个随机样本，不可重复
+df.sample(n=3)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8</td>
+      <td>9</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#随机抽样，可重复的话replace=True
+choices=pd.Series([5,7,-1,6,4])
+choices
+```
+
+
+
+
+    0    5
+    1    7
+    2   -1
+    3    6
+    4    4
+    dtype: int64
+
+
+
+
+```python
+draws=choices.sample(n=10,replace=True)
+draws
+```
+
+
+
+
+    4    4
+    2   -1
+    1    7
+    3    6
+    3    6
+    1    7
+    4    4
+    4    4
+    4    4
+    2   -1
+    dtype: int64
+
+
+
+
+```python
+#7.2.8 计算指标/虚拟变量
+```
+
+
+```python
+import numpy as np
+import pandas as pd
+PREVIOUS_MAX_ROWS =pd.options.display.max_rows
+pd.options.display.max_rows=20
+np.random.seed(12345)
+import matplotlib.pyplot as plt
+plt.rc('figure',figsize=(10,6))
+np.set_printoptions(precision=4,suppress=True)
+```
+
+
+```python
+df=pd.DataFrame({'key':['b','b','a','c','a','b'],
+                'data1':range(6)})
+df
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>key</th>
+      <th>data1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>b</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>b</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>a</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>c</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>a</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>b</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#这abc变成三列，用1标记
+pd.get_dummies(df['key'])
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>a</th>
+      <th>b</th>
+      <th>c</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#列上面加上前缀key
+dummies=pd.get_dummies(df['key'],prefix='key')
+dummies
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>key_a</th>
+      <th>key_b</th>
+      <th>key_c</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#与其他类合并
+df_with_dummy=df[['data1']].join(dummies)
+df_with_dummy
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>data1</th>
+      <th>key_a</th>
+      <th>key_b</th>
+      <th>key_c</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#如果一行属于多个类别
+mnames=['movie_id','title','genres']
+movies=pd.read_table('Desktop/pydata-book/datasets/movielens/movies.dat',sep='::',
+                    header=None,names=mnames)
+movies[:10]
+```
+
+    <ipython-input-109-cfc976b873ab>:3: ParserWarning: Falling back to the 'python' engine because the 'c' engine does not support regex separators (separators > 1 char and different from '\s+' are interpreted as regex); you can avoid this warning by specifying engine='python'.
+      movies=pd.read_table('Desktop/pydata-book/datasets/movielens/movies.dat',sep='::',
+    
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movie_id</th>
+      <th>title</th>
+      <th>genres</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Toy Story (1995)</td>
+      <td>Animation|Children's|Comedy</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children's|Fantasy</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Grumpier Old Men (1995)</td>
+      <td>Comedy|Romance</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Waiting to Exhale (1995)</td>
+      <td>Comedy|Drama</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Father of the Bride Part II (1995)</td>
+      <td>Comedy</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>Heat (1995)</td>
+      <td>Action|Crime|Thriller</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>Sabrina (1995)</td>
+      <td>Comedy|Romance</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>Tom and Huck (1995)</td>
+      <td>Adventure|Children's</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>Sudden Death (1995)</td>
+      <td>Action</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>GoldenEye (1995)</td>
+      <td>Action|Adventure|Thriller</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+all_genres=[]
+for x in movies.genres:
+    #加入列表
+    all_genres.extend(x.split('|'))#extend就是加入列表的意思，append加入列表只能跟元素，extend加入列表可以跟列表
+genres=pd.unique(all_genres)#取唯一值
+```
+
+
+```python
+genres
+```
+
+
+
+
+    array(['Animation', "Children's", 'Comedy', 'Adventure', 'Fantasy',
+           'Romance', 'Drama', 'Action', 'Crime', 'Thriller', 'Horror',
+           'Sci-Fi', 'Documentary', 'War', 'Musical', 'Mystery', 'Film-Noir',
+           'Western'], dtype=object)
+
+
+
+
+```python
+movies.genres[0]
+```
+
+
+
+
+    "Animation|Children's|Comedy"
+
+
+
+
+```python
+movies.genres[0].split('|')
+```
+
+
+
+
+    ['Animation', "Children's", 'Comedy']
+
+
+
+
+```python
+#生成行数等于movies，列数等于电影类别的全为0的数组
+zero_matrix=np.zeros((len(movies),len(genres)))
+zero_matrix
+```
+
+
+
+
+    array([[0., 0., 0., ..., 0., 0., 0.],
+           [0., 0., 0., ..., 0., 0., 0.],
+           [0., 0., 0., ..., 0., 0., 0.],
+           ...,
+           [0., 0., 0., ..., 0., 0., 0.],
+           [0., 0., 0., ..., 0., 0., 0.],
+           [0., 0., 0., ..., 0., 0., 0.]])
+
+
+
+
+```python
+#使用刚才整理出的电影类别，作为列，数组作为值，生成DataFrame
+dummies=pd.DataFrame(zero_matrix,columns=genres)
+dummies
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Animation</th>
+      <th>Children's</th>
+      <th>Comedy</th>
+      <th>Adventure</th>
+      <th>Fantasy</th>
+      <th>Romance</th>
+      <th>Drama</th>
+      <th>Action</th>
+      <th>Crime</th>
+      <th>Thriller</th>
+      <th>Horror</th>
+      <th>Sci-Fi</th>
+      <th>Documentary</th>
+      <th>War</th>
+      <th>Musical</th>
+      <th>Mystery</th>
+      <th>Film-Noir</th>
+      <th>Western</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>3878</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3879</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3880</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3881</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3882</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>3883 rows × 18 columns</p>
+</div>
+
+
+
+
+```python
+#在这张表中，我们统计，每一行对应的类别
+#如果属于该类别，就标记为1，如果不属于，则标记为0
+gen=movies.genres[0]
+gen
+```
+
+
+
+
+    "Animation|Children's|Comedy"
+
+
+
+
+```python
+gen.split('|')
+```
+
+
+
+
+    ['Animation', "Children's", 'Comedy']
+
+
+
+
+```python
+#找到这三个值对应的序列号
+dummies.columns.get_indexer(gen.split('|'))
+```
+
+
+
+
+    array([0, 1, 2], dtype=int64)
+
+
+
+
+```python
+#序列号找到了，就能确定元素的位置
+#让该位置元素值为1
+
+```
+
+
+```python
+type(movies.genres)
+```
+
+
+
+
+    pandas.core.series.Series
+
+
+
+
+```python
+for i, gen in enumerate(movies.genres):
+    indices=dummies.columns.get_indexer(gen.split('|'))
+    dummies.iloc[i,indices]=1
+dummies
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Animation</th>
+      <th>Children's</th>
+      <th>Comedy</th>
+      <th>Adventure</th>
+      <th>Fantasy</th>
+      <th>Romance</th>
+      <th>Drama</th>
+      <th>Action</th>
+      <th>Crime</th>
+      <th>Thriller</th>
+      <th>Horror</th>
+      <th>Sci-Fi</th>
+      <th>Documentary</th>
+      <th>War</th>
+      <th>Musical</th>
+      <th>Mystery</th>
+      <th>Film-Noir</th>
+      <th>Western</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>3878</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3879</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3880</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3881</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3882</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>3883 rows × 18 columns</p>
+</div>
+
+
+
+
+```python
+#把标记好的列加入到原来的列中
+movies_windic=movies.join(dummies.add_prefix('Genre_'))
+movies_windic
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>movie_id</th>
+      <th>title</th>
+      <th>genres</th>
+      <th>Genre_Animation</th>
+      <th>Genre_Children's</th>
+      <th>Genre_Comedy</th>
+      <th>Genre_Adventure</th>
+      <th>Genre_Fantasy</th>
+      <th>Genre_Romance</th>
+      <th>Genre_Drama</th>
+      <th>...</th>
+      <th>Genre_Crime</th>
+      <th>Genre_Thriller</th>
+      <th>Genre_Horror</th>
+      <th>Genre_Sci-Fi</th>
+      <th>Genre_Documentary</th>
+      <th>Genre_War</th>
+      <th>Genre_Musical</th>
+      <th>Genre_Mystery</th>
+      <th>Genre_Film-Noir</th>
+      <th>Genre_Western</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Toy Story (1995)</td>
+      <td>Animation|Children's|Comedy</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Jumanji (1995)</td>
+      <td>Adventure|Children's|Fantasy</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Grumpier Old Men (1995)</td>
+      <td>Comedy|Romance</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Waiting to Exhale (1995)</td>
+      <td>Comedy|Drama</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Father of the Bride Part II (1995)</td>
+      <td>Comedy</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>3878</th>
+      <td>3948</td>
+      <td>Meet the Parents (2000)</td>
+      <td>Comedy</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3879</th>
+      <td>3949</td>
+      <td>Requiem for a Dream (2000)</td>
+      <td>Drama</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3880</th>
+      <td>3950</td>
+      <td>Tigerland (2000)</td>
+      <td>Drama</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3881</th>
+      <td>3951</td>
+      <td>Two Family House (2000)</td>
+      <td>Drama</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3882</th>
+      <td>3952</td>
+      <td>Contender, The (2000)</td>
+      <td>Drama|Thriller</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>3883 rows × 21 columns</p>
+</div>
+
+
+
+
+```python
+movies_windic.iloc[0]#查看第0行的内容
+```
+
+
+
+
+    movie_id                                      1
+    title                          Toy Story (1995)
+    genres              Animation|Children's|Comedy
+    Genre_Animation                             1.0
+    Genre_Children's                            1.0
+                                   ...             
+    Genre_War                                   0.0
+    Genre_Musical                               0.0
+    Genre_Mystery                               0.0
+    Genre_Film-Noir                             0.0
+    Genre_Western                               0.0
+    Name: 0, Length: 21, dtype: object
+
+
+
+
+```python
+#也可以将get_dummies与cut结合使用
+np.random.seed(12345)
+values=np.random.rand(10)
+values
+```
+
+
+
+
+    array([0.9296, 0.3164, 0.1839, 0.2046, 0.5677, 0.5955, 0.9645, 0.6532,
+           0.7489, 0.6536])
+
+
+
+
+```python
+bins=[0,0.2,0.4,0.6,0.8,1]
+pd.get_dummies(pd.cut(values,bins))
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>(0.0, 0.2]</th>
+      <th>(0.2, 0.4]</th>
+      <th>(0.4, 0.6]</th>
+      <th>(0.6, 0.8]</th>
+      <th>(0.8, 1.0]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+#7.3 字符串操作String Manipulation
+#7.3.1 字符串对象方法 String Object  Methods
+#拆分
+```
+
+
+```python
+val='a,b, guido'
+val.split(',')
+```
+
+
+
+
+    ['a', 'b', ' guido']
+
+
+
+
+```python
+#常常和strip一起使用，用于清除空格
+pieces=[x.strip() for x in val.split(',')]
+pieces
+```
+
+
+
+
+    ['a', 'b', 'guido']
+
+
+
+
+```python
+#加号合并字符串
+first,second,third=pieces
+first+'::'+second+'::'+third
+```
+
+
+
+
+    'a::b::guido'
+
+
+
+
+```python
+#join方法合并字符串
+'::'.join(pieces)
+```
+
+
+
+
+    'a::b::guido'
+
+
+
+
+```python
+'guido' in val
+```
+
+
+
+
+    True
+
+
+
+
+```python
+#获取索引
+#val.index(',')
+val.index('b')
+```
+
+
+
+
+    2
+
+
+
+
+```python
+#获取索引
+val.find(':')
+```
+
+
+
+
+    -1
+
+
+
+
+```python
+#与index的区别是，如果该字符不存在，index会抛出一个异常，find会返回-1
+val.index(':')
+```
+
+
+    ---------------------------------------------------------------------------
+
+    ValueError                                Traceback (most recent call last)
+
+    <ipython-input-142-0cab5837e829> in <module>
+          1 #与index的区别是，如果该字符不存在，index会抛出一个异常，find会返回-1
+    ----> 2 val.index(':')
+    
+
+    ValueError: substring not found
+
+
+
+```python
+#计数
+val.count(',')
+```
+
+
+
+
+    2
+
+
+
+
+```python
+#替换
+val.replace(',','::')
+```
+
+
+
+
+    'a::b:: guido'
+
+
+
+
+```python
+val.replace(',','')
+```
+
+
+
+
+    'ab guido'
+
+
+
+
+```python
+#7.3.2 正则表达式
+```
+
+
+```python
+#在最开始的时候讲的非常详细了，这里就过一下
+#导入，分割，跟上面对字符串的操作很像，只不过是在re下的函数，使用正则表达式的规则
+```
+
+
+```python
+import re
+text="foo    bar\t baz   \tqux"
+re.split('\s+',text)
+```
+
+
+
+
+    ['foo', 'bar', 'baz', 'qux']
+
+
+
+
+```python
+#可以把写好的正则表达式规矩存下来，之后重复使用，像一个函数一样
+```
+
+
+```python
+regex=re.compile('\s+')
+regex.split(text)
+```
+
+
+
+
+    ['foo', 'bar', 'baz', 'qux']
+
+
+
+
+```python
+#获取匹配正则表达式内容的列表
+regex.findall(text)
+```
+
+
+
+
+    ['    ', '\t ', '   \t']
+
+
+
+
+```python
+#所有空格都被匹配出来
+
+#可以识别大部分邮件地址的正则表达式
+```
+
+
+```python
+text="""Dave dave@google.com
+Steve steve@gmail.com
+Rob rob@gmail.com
+Ryan ryan@yahoo.com
+"""
+pattern=r'[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}'
+
+#re.IGNORECASE makes the regex case-insensitive
+regex=re.compile(pattern,flags=re.IGNORECASE)
+```
+
+
+```python
+#findall返回的是列表
+regex.findall(text)
+```
+
+
+
+
+    ['dave@google.com', 'steve@gmail.com', 'rob@gmail.com', 'ryan@yahoo.com']
+
+
+
+
+```python
+#search返回第一个匹配到的
+#记录的是其在文本中的起始位置与结束位置
+```
+
+
+```python
+m=regex.search(text)
+m
+```
+
+
+
+
+    <re.Match object; span=(5, 20), match='dave@google.com'>
+
+
+
+
+```python
+text[m.start():m.end()]
+```
+
+
+
+
+    'dave@google.com'
+
+
+
+
+```python
+#match只匹配开头，没有匹配到，返回None
+```
+
+
+```python
+print(regex.match(text))
+```
+
+    None
+    
+
+
+```python
+#替换
+print(regex.sub('REDACTED',text))
+```
+
+    Dave REDACTED
+    Steve REDACTED
+    Rob REDACTED
+    Ryan REDACTED
+    
+    
+
+
+```python
+#用括号将正则表达式包起来，返回的就是分开的元组
+pattern=r'([A-Z0-9._%+-]+)@([A-Z0-9.-]+)\.([A-Z]{2,4})'
+regex=re.compile(pattern,flags=re.IGNORECASE)
+```
+
+
+```python
+m=regex.match('wesm@bright.net')
+m.groups()
+```
+
+
+
+
+    ('wesm', 'bright', 'net')
+
+
+
+
+```python
+regex.findall(text)
+```
+
+
+
+
+    [('dave', 'google', 'com'),
+     ('steve', 'gmail', 'com'),
+     ('rob', 'gmail', 'com'),
+     ('ryan', 'yahoo', 'com')]
+
+
+
+
+```python
+#替换时，|1表示第一个组，|2表示第二个组
+print(regex.sub(r'Username: \1, Domain: \2, Suffix: \3',text))
+```
+
+    Dave Username: dave, Domain: google, Suffix: com
+    Steve Username: steve, Domain: gmail, Suffix: com
+    Rob Username: rob, Domain: gmail, Suffix: com
+    Ryan Username: ryan, Domain: yahoo, Suffix: com
+    
+    
+
+
+```python
+#7.3.3 向量化字符串函数
+#数据中含有缺失值，使用正则表达式很不方便
+```
+
+
+```python
+data={'Dave':'dave@google.com','Steve':'steve@gmail.com',
+     'Rob':'rob@gmail.com','Wes':np.nan}
+data=pd.Series(data)
+data
+```
+
+
+
+
+    Dave     dave@google.com
+    Steve    steve@gmail.com
+    Rob        rob@gmail.com
+    Wes                  NaN
+    dtype: object
+
+
+
+
+```python
+#Series的str属性，可以跳过NA值
+#如下面判断字符串是否含有gmail
+```
+
+
+```python
+data.str.contains('gmail')
+```
+
+
+
+
+    Dave     False
+    Steve     True
+    Rob       True
+    Wes        NaN
+    dtype: object
+
+
+
+
+```python
+#使用正则表达式的规则
+pattern
+```
+
+
+
+
+    '([A-Z0-9._%+-]+)@([A-Z0-9.-]+)\\.([A-Z]{2,4})'
+
+
+
+
+```python
+data.str.findall(pattern,flags=re.IGNORECASE)
+```
+
+
+
+
+    Dave     [(dave, google, com)]
+    Steve    [(steve, gmail, com)]
+    Rob        [(rob, gmail, com)]
+    Wes                        NaN
+    dtype: object
+
+
+
+
+```python
+matches=data.str.match(pattern,flags=re.IGNORECASE)
+matches
+```
+
+
+
+
+    Dave     True
+    Steve    True
+    Rob      True
+    Wes       NaN
+    dtype: object
+
+
+
+
+```python
+#判断后的结果，传递索引？？
+
+```
+
+
+```python
+matches.str.get(2)
+```
+
+
+```python
+matches.str[0]
+```
+
+
+```python
+#切片
+```
+
+
+```python
+data.str[:5]
+```
+
+
+
+
+    Dave     dave@
+    Steve    steve
+    Rob      rob@g
+    Wes        NaN
+    dtype: object
+
+
+
+
+```python
+pd.options.display.max_rows=PREVIOUS_MAX_ROWS
+```
+
+
+```python
+
+```
